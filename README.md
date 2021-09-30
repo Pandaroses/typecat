@@ -1,12 +1,26 @@
-Welcome to Typecat, A Terminal Typing Test.
-this is my first rust project so if you find any issues put an issue
-probably has some problems
+# Typecat
 
-Installation:
-**Manual**
-git clone https://github.com/pandaroses/typecat
-cd typecat
-cargo run
+typecat is a terminal typing test made by me as my first rust project
 
-**AUR**
-ill do this later lol
+## Installation
+
+Use the aur to install typecat.
+
+```bash
+ yay -S typecat
+```
+
+or manual installation
+
+```bash
+  git clone https://github.com/pandaroses/typecat
+  cd typecat
+  cargo run
+```
+
+
+## Contributing
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+## License
+[MIT](https://choosealicense.com/licenses/mit/)
