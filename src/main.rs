@@ -1,5 +1,5 @@
 use std::io::{Write, stdout, stdin};
-use std::{error::Error, io};
+use std::{error::Error, io, time::Instant};
 use tui::Terminal;
 use tui::backend::TermionBackend;
 use termion::raw::IntoRawMode;
@@ -22,6 +22,8 @@ struct App {
   mode: Mode,
   pastwpm: Vec<u16>,
   words: String,
+  timestarted: Option<Instant>,
+  tempoby: u64
 }
 
 impl Default for App {
@@ -31,6 +33,8 @@ impl Default for App {
       mode: Mode::Start,
       pastwpm: Vec::new(),
       words: String::from("the quick brown fox jumped over the lazy dog"),
+      timestarted: None, 
+      tempoby: 69
     }
   }
 }
@@ -47,20 +51,31 @@ impl App {
     terminal.draw(|f| self.draw(f))?;
     for c in stdin().keys() {
       match self.mode {
-        Mode::Typing => match c? {
-          Key::Esc => self.mode = Mode::Start,
-          Key::Char(c) => self.input.push(c),
-          Key::Backspace => {
-            self.input.pop();
+        Mode::Typing => {
+          match c? {
+            Key::Esc => {self.input = "".to_string(); self.mode = Mode::Start},
+            Key::Char(c) => self.input.push(c),
+            Key::Backspace => {
+              self.input.pop();
+            }
+            _ => {}
+          };
+          if self.input.len() == self.words.len() {
+            self.tempoby = self.timestarted.unwrap().elapsed().as_secs();
+            //can set results later
+            self.mode = Mode::Start;
+          }
+        }
+        Mode::Start => match c? {
+          Key::Char('q') => break,
+          Key::Char('\n') => {
+            self.mode = Mode::Typing;
+            self.timestarted = Some(Instant::now())
           }
           _ => {}
         },
-        Mode::Start => match c? {
-          Key::Char('q') => break,
-          Key::Char('\n') => self.mode = Mode::Typing,
-          _ => {}
-        },
       }
+
       terminal.draw(|f| self.draw(f))?;
     }
     Ok(())
@@ -89,7 +104,7 @@ impl App {
 
         f.render_widget(help, chunks[0]);
 
-        let list = Paragraph::new("Quick Brown fox \n Lorem Ipsum \n English 1k ")
+        let list = Paragraph::new(format!("Quick Brown fox \n Lorem Ipsum \n English 1k {}",self.tempoby))
           .block(Block::default().borders(Borders::ALL))
           .style(Style::default().fg(Color::White).bg(Color::DarkGray))
           .alignment(Alignment::Left)
