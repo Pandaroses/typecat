@@ -8,9 +8,9 @@ use termion::screen::AlternateScreen;
 use termion::{event::Key, input::MouseTerminal};
 use tui::widgets::{Widget, Block, Borders, Paragraph, Wrap};
 use tui::layout::{Layout, Constraint, Direction, Alignment};
-use tui::text::{Span};
+use tui::text::{Span, Spans};
 use tui::terminal::Frame;
-use tui::style::{Style, Color};
+use tui::style::{Style, Color, Modifier};
 
 enum Mode {
   Start,
@@ -30,7 +30,7 @@ impl Default for App {
       input: String::new(),
       mode: Mode::Start,
       pastwpm: Vec::new(),
-      words: String::from("Welcome to Typecat, The Terminal Typing test =^._.^= ∫ \n q to quit ||  Enter to switch to typing mode || g to check previous typing speed \n Arrow keys to choose Text level")
+      words: String::from("the quick brown fox jumped over the lazy dog"),
     }
   }
 }
@@ -45,28 +45,23 @@ impl App {
     >,
   ) -> Result<(), Box<dyn Error>> {
     terminal.draw(|f| self.draw(f))?;
-    match self.mode {
-      Mode::Start => {
-        for c in stdin().keys() {
-          terminal.draw(|f| self.draw(f))?;
-
-          match c? {
-            Key::Char('q') => break,
-            Key::Char('\n') => self.mode = Mode::Typing,
-            _ => {}
+    for c in stdin().keys() {
+      match self.mode {
+        Mode::Typing => match c? {
+          Key::Esc => self.mode = Mode::Start,
+          Key::Char(c) => self.input.push(c),
+          Key::Backspace => {
+            self.input.pop();
           }
-        }
+          _ => {}
+        },
+        Mode::Start => match c? {
+          Key::Char('q') => break,
+          Key::Char('\n') => self.mode = Mode::Typing,
+          _ => {}
+        },
       }
-      Mode::Typing => {
-        for c in stdin().keys() {
-          terminal.draw(|f| self.draw(f))?;
-
-          match c? {
-            Key::Esc => self.mode = Mode::Start,
-            _ => {}
-          }
-        }
-      }
+      terminal.draw(|f| self.draw(f))?;
     }
     Ok(())
   }
@@ -86,7 +81,7 @@ impl App {
 
     match self.mode {
       Mode::Start => {
-        let help = Paragraph::new(self.words.clone())
+        let help = Paragraph::new("Welcome to Typecat, The Terminal Typing test =^._.^= ∫ \n q to quit ||  Enter to switch to typing mode || g to check previous typing speed \n Arrow keys to choose Text level")
           .block(Block::default().borders(Borders::ALL))
           .style(Style::default().fg(Color::White).bg(Color::DarkGray))
           .alignment(Alignment::Center)
@@ -94,7 +89,6 @@ impl App {
 
         f.render_widget(help, chunks[0]);
 
-        
         let list = Paragraph::new("Quick Brown fox \n Lorem Ipsum \n English 1k ")
           .block(Block::default().borders(Borders::ALL))
           .style(Style::default().fg(Color::White).bg(Color::DarkGray))
@@ -104,21 +98,39 @@ impl App {
       }
 
       Mode::Typing => {
-        let help = Paragraph::new(self.words.clone())
+        let mut spans = vec![];
+        let mut correct = 0;
+
+        for (i, c) in self.words.chars().enumerate() {
+          let style = match self.input.chars().nth(i) {
+            Some(a) => {
+              if a == c {
+                correct += 1;
+                Style::default()
+                  .fg(Color::Green)
+                  .add_modifier(Modifier::BOLD)
+              } else {
+                Style::default().fg(Color::Red).add_modifier(Modifier::BOLD)
+              }
+            }
+            _ => Style::default().fg(Color::Cyan),
+          };
+          spans.push(Span::styled(String::from(c), style));
+        }
+        let typingbox = Paragraph::new(Spans::from(spans))
+          .block(Block::default().borders(Borders::ALL))
+          .style(Style::default().fg(Color::White).bg(Color::DarkGray))
+          .alignment(Alignment::Left)
+          .wrap(Wrap { trim: true });
+
+        f.render_widget(typingbox, chunks[1]);
+        let help = Paragraph::new(format!("Correct: {}", correct))
           .block(Block::default().borders(Borders::ALL))
           .style(Style::default().fg(Color::White).bg(Color::DarkGray))
           .alignment(Alignment::Center)
           .wrap(Wrap { trim: true });
 
         f.render_widget(help, chunks[0]);
-
-        
-        let list = Paragraph::new("Typing Typing Typing ")
-          .block(Block::default().borders(Borders::ALL))
-          .style(Style::default().fg(Color::White).bg(Color::DarkGray))
-          .alignment(Alignment::Left)
-          .wrap(Wrap { trim: true });
-        f.render_widget(list, chunks[1]);
       }
     }
   }
