@@ -23,7 +23,9 @@ struct App {
   pastwpm: Vec<u16>,
   words: String,
   timestarted: Option<Instant>,
-  tempoby: u64
+  tempoby: u64,
+  lvlslct: usize,
+  lvl: Vec<String>,
 }
 
 impl Default for App {
@@ -34,7 +36,10 @@ impl Default for App {
       pastwpm: Vec::new(),
       words: String::from("the quick brown fox jumped over the lazy dog"),
       timestarted: None, 
-      tempoby: 69
+      tempoby: 69,
+      lvlslct: 0,
+      lvl: vec![String::from("The quick brown fox jumped over the lazy dog"),String::from("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam mauris dolor, interdum sed porttitor in, tempor eget turpis. Phasellus tincidunt tortor ac enim laoreet sollicitudin. Aliquam erat volutpat. Nunc ut est eu diam commodo accumsan. Aenean mattis tortor a quam tincidunt, sagittis dignissim nisi porttitor. Mauris molestie lectus leo, ac euismod tortor maximus in. Nullam efficitur leo id blandit pulvinar. Proin ornare quis erat tincidunt tristique. Aliquam erat volutpat. Donec viverra, eros vel bibendum accumsan, ligula odio sagittis purus, id congue urna mauris et mauris. Vestibulum quam sapien, mattis quis dui sed, imperdiet bibendum sem. Suspendisse dignissim venenatis ultricies. Nulla finibus purus dui.
+      "),String::from("Helllo this is work in progress but you can use this as a typing test i guess =^._.^= ")]
     }
   }
 }
@@ -53,15 +58,19 @@ impl App {
       match self.mode {
         Mode::Typing => {
           match c? {
-            Key::Esc => {self.input = "".to_string(); self.mode = Mode::Start},
+            Key::Esc => {
+              self.input = "".to_string();
+              self.mode = Mode::Start
+            }
             Key::Char(c) => self.input.push(c),
             Key::Backspace => {
               self.input.pop();
             }
             _ => {}
           };
-          if self.input.len() == self.words.len() {
+          if self.input.len() == self.lvl[self.lvlslct].len() {
             self.tempoby = self.timestarted.unwrap().elapsed().as_secs();
+            // this needs the fuck is go here the "" go he
             //can set results later
             self.mode = Mode::Start;
           }
@@ -72,6 +81,8 @@ impl App {
             self.mode = Mode::Typing;
             self.timestarted = Some(Instant::now())
           }
+          Key::Left => {if self.lvlslct > 0 {self.lvlslct -= 1}} ,
+          Key::Right => {if self.lvlslct <= self.lvl.len() {self.lvlslct += 1}},
           _ => {}
         },
       }
@@ -104,7 +115,23 @@ impl App {
 
         f.render_widget(help, chunks[0]);
 
-        let list = Paragraph::new(format!("Quick Brown fox \n Lorem Ipsum \n English 1k {}",self.tempoby))
+        let mut spans = vec![];
+        let levels = vec!["Quick Brown Fox ", "Lorem Ipsum ", "English 1k "];
+
+        for (i, level) in levels.iter().enumerate() {
+          if self.lvlslct == i {
+            spans.push(Span::styled(
+              String::from(levels[i]),
+              Style::default()
+                .add_modifier(Modifier::BOLD)
+                .bg(Color::LightBlue),
+            ));
+          } else {
+            spans.push(Span::raw(String::from(levels[i])));
+          }
+        }
+
+        let list = Paragraph::new(Spans::from(spans))
           .block(Block::default().borders(Borders::ALL))
           .style(Style::default().fg(Color::White).bg(Color::DarkGray))
           .alignment(Alignment::Left)
@@ -116,7 +143,7 @@ impl App {
         let mut spans = vec![];
         let mut correct = 0;
 
-        for (i, c) in self.words.chars().enumerate() {
+        for (i, c) in self.lvl[self.lvlslct].chars().enumerate() {
           let style = match self.input.chars().nth(i) {
             Some(a) => {
               if a == c {
@@ -139,6 +166,7 @@ impl App {
           .wrap(Wrap { trim: true });
 
         f.render_widget(typingbox, chunks[1]);
+
         let help = Paragraph::new(format!("Correct: {}", correct))
           .block(Block::default().borders(Borders::ALL))
           .style(Style::default().fg(Color::White).bg(Color::DarkGray))
@@ -146,6 +174,7 @@ impl App {
           .wrap(Wrap { trim: true });
 
         f.render_widget(help, chunks[0]);
+        f.set_cursor(chunks[1].x + self.input.len() as u16 + 1, chunks[1].y + 1)
       }
     }
   }
