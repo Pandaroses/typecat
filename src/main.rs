@@ -81,8 +81,16 @@ impl App {
             self.mode = Mode::Typing;
             self.timestarted = Some(Instant::now())
           }
-          Key::Left => {if self.lvlslct > 0 {self.lvlslct -= 1}} ,
-          Key::Right => {if self.lvlslct <= self.lvl.len() {self.lvlslct += 1}},
+          Key::Left => {
+            if self.lvlslct > 0 {
+              self.lvlslct -= 1
+            }
+          }
+          Key::Right => {
+            if self.lvlslct <= self.lvl.len() {
+              self.lvlslct += 1
+            }
+          }
           _ => {}
         },
       }
