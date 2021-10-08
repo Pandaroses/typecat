@@ -15,6 +15,7 @@ use tui::style::{Style, Color, Modifier};
 enum Mode {
   Start,
   Typing,
+  Results,
 }
 
 struct App {
@@ -72,10 +73,10 @@ impl App {
           };
           if self.input.len() == self.lvl[self.lvlslct].len() {
             self.tempoby = self.timestarted.unwrap().elapsed().as_secs();
-            self.cpm;
+            self.cpm = self.tempoby  / self.lvl[self.lvlslct].len() as u64;
             // this needs the fuck is go here the "" go he
             //can set results later
-            self.mode = Mode::Start;
+            self.mode = Mode::Results;
           }
         }
         Mode::Start => match c? {
@@ -94,8 +95,15 @@ impl App {
               self.lvlslct += 1
             }
           }
+          
           _ => {}
         },
+        Mode::Results => match c? {
+          Key::Char('q') => break,
+          Key::Char('\n') => self.mode = Mode::Start,
+          Key::Char('s') => {self.pastwpm.push(self.cpm as u16)},
+          _ => {}
+        }
       }
 
       terminal.draw(|f| self.draw(f))?;
@@ -186,6 +194,23 @@ impl App {
 
         f.render_widget(help, chunks[0]);
         f.set_cursor(chunks[1].x + self.input.len() as u16 + 1, chunks[1].y + 1)
+      }
+      Mode::Results => {
+        let typingbox = Paragraph::new(format!("Your Characters per minute was {} , Well Done", (self.lvl[self.lvlslct].len() as u64 / self.tempoby) * 60  ))
+          .block(Block::default().borders(Borders::ALL))
+          .style(Style::default().fg(Color::White).bg(Color::DarkGray))
+          .alignment(Alignment::Left)
+          .wrap(Wrap { trim: true });
+
+        f.render_widget(typingbox, chunks[1]);
+
+        let help = Paragraph::new(format!("it took you {} Seconds, Good job", self.tempoby))
+          .block(Block::default().borders(Borders::ALL))
+          .style(Style::default().fg(Color::White).bg(Color::DarkGray))
+          .alignment(Alignment::Center)
+          .wrap(Wrap { trim: true });
+
+        f.render_widget(help, chunks[0]);
       }
     }
   }
