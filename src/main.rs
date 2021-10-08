@@ -30,6 +30,10 @@ struct App {
   lvl: Vec<String>,
 }
 
+struct score { 
+  
+}
+
 impl Default for App {
   fn default() -> App {
     App {
@@ -42,7 +46,7 @@ impl Default for App {
       tempoby: 69,
       lvlslct: 0,
       lvl: vec![String::from("The quick brown fox jumped over the lazy dog"),String::from("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam mauris dolor, interdum sed porttitor in, tempor eget turpis. Phasellus tincidunt tortor ac enim laoreet sollicitudin. Aliquam erat volutpat. Nunc ut est eu diam commodo accumsan. Aenean mattis tortor a quam tincidunt, sagittis dignissim nisi porttitor. Mauris molestie lectus leo, ac euismod tortor maximus in. Nullam efficitur leo id blandit pulvinar. Proin ornare quis erat tincidunt tristique. Aliquam erat volutpat. Donec viverra, eros vel bibendum accumsan, ligula odio sagittis purus, id congue urna mauris et mauris. Vestibulum quam sapien, mattis quis dui sed, imperdiet bibendum sem. Suspendisse dignissim venenatis ultricies. Nulla finibus purus dui.
-      "),String::from("Hel 12lo this is work in progress but you can use this as a typing test i guess =^._.^= ")]
+      "),String::from("Hello this is work in progress but you can use this as a typing test i guess =^._.^= ")]
     }
   }
 }
