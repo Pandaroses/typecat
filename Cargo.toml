@@ -4,8 +4,9 @@ version = "0.1.0"
 edition = "2018"
 description="terminal typing test"
 license="MIT"
-author = "gosha"
+authors = ["gosha"]
 repository="https://github.com/pandaroses/typecat"
+homepage="https://pndrs.codes"
 keyword="pog"
 category="Games"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
