@@ -1,0 +1,13 @@
+pkgbase = typecat-bin
+	pkgdesc = terminal typing test
+	pkgver = 0.1.0
+	pkgrel = 1
+	url = https://pndrs.codes
+	arch = x86_64
+	license = MIT
+	provides = typecat
+	conflicts = typecat
+	source = https://github.com/pandaroses/typecat/releases/download/v0.1.0/typecat-0.1.0-x86_64.tar.gz
+	sha256sums = 62cf8d583a5ca2cd7f5f7bcaf67a0c50e878b6e2884dda0aeb0bae5b92587efc
+
+pkgname = typecat-bin
