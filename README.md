@@ -15,7 +15,14 @@ or manual installation
 ```bash
   git clone https://github.com/pandaroses/typecat
   cd typecat
-  cargo run
+  makepkg -si
+```
+
+
+to run
+
+```bash
+ typecat
 ```
 
 
