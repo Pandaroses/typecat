@@ -157,7 +157,7 @@ impl App {
                 .bg(Color::LightBlue),
             ));
           } else {
-            spans.push(Span::raw(String::from(levels[i]))); //alex should fix
+            spans.push(Span::raw(String::from(levels[i]))); //alex should fix what am i meant to fix
           }
         }
 
